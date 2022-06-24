@@ -50,7 +50,6 @@ func (q Querier) RecordsByDistributionName(ctx context.Context, request *types.Q
 
 func (q Querier) RecordsByRecipient(ctx context.Context, request *types.QueryRecordsByRecipientAddrRequest) (*types.QueryRecordsByRecipientAddrResponse, error) {
 	records := q.keeper.GetRecordsForRecipient(sdk.UnwrapSDKContext(ctx), request.Address)
-
 	return &types.QueryRecordsByRecipientAddrResponse{
 		DistributionRecords: records,
 	}, nil

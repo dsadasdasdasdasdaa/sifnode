@@ -20,6 +20,19 @@ type Querier struct {
 	Keeper Keeper
 }
 
+func (k Querier) GetUpgradeParams(c context.Context, req *types.UpgradeReq) (*types.UpgradeRes, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	downgradeVerfied := k.Keeper.upgradeKeeper.DowngradeVerified()
+	has_handler := k.Keeper.upgradeKeeper.HasHandler(req.Handler)
+	plan, height := k.Keeper.upgradeKeeper.GetLastCompletedUpgrade(ctx)
+	return &types.UpgradeRes{
+		Downgrade:  downgradeVerfied,
+		Hashandler: has_handler,
+		Plan:       plan,
+		PlanHeight: height,
+	}, nil
+}
+
 var _ types.QueryServer = Querier{}
 
 func (k Querier) GetPool(c context.Context, req *types.PoolReq) (*types.PoolRes, error) {
@@ -42,7 +55,6 @@ func (k Querier) GetPools(c context.Context, req *types.PoolsReq) (*types.PoolsR
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
-
 	if req.Pagination == nil {
 		req.Pagination = &query.PageRequest{
 			Limit: MaxPageLimit,
